@@ -10,13 +10,13 @@ Copyright (c) 2014-     GoxCoin Developers
 What is GoxCoin?
 ----------------
 
-GoxCoin is a zero-reward version of Bitcoin using scrypt as a proof-of-work algorithm.
+GoxCoin is a potentially zero-reward version of Bitcoin using scrypt as a proof-of-work algorithm.
 
  - 1 minute block targets
- - 0 coins per block
+ - 0 to 0.1 coins per block
  - subsidy halves in 1440 blocks (~24 hours)
- - 0 total coins
- - Difficulty adjustment every 5 minutes
+ - unknown total coins
+ - difficulty adjustment every 5 minutes
 
 
 License
