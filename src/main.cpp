@@ -73,6 +73,23 @@ int64 nHPSTimerStart = 0;
 int64 nTransactionFee = 0;
 int64 nMinimumInputValue = DUST_HARD_LIMIT;
 
+// ranrot-b prng
+unsigned int rrb_rand( unsigned int seed )
+{
+    static unsigned int lo, hi;
+    if( seed != 0 )
+    {
+        lo = seed;
+        hi = ~seed;
+    }
+    else
+    {
+        hi = ( hi << 16 ) + ( hi >> 16 );
+        hi += lo;
+        lo += hi;
+    }
+    return hi;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -921,7 +938,7 @@ int CMerkleTx::GetBlocksToMaturity() const
 {
     if (!IsCoinBase())
         return 0;
-    return max(0, (COINBASE_MATURITY+20) - GetDepthInMainChain());
+    return max(0, (COINBASE_MATURITY+1) - GetDepthInMainChain());
 }
 
 
@@ -1063,7 +1080,12 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
 
 int64 static GetBlockValue(int nHeight, int64 nFees)
 {
-    int64 nSubsidy = 0 * COIN;
+    int64 nSubsidy;
+
+    // You may or may not get a coin. No one knows.
+    int r = rrb_rand( 0 ) % 100;
+    nSubsidy = r < 50 ? 0.1 * COIN : 0;
+    rrb_rand( (unsigned int)GetTime() );
 
     // Subsidy is cut in half every 1440 blocks, which will occur pretty much every day
     nSubsidy >>= (nHeight / 1440); // GoxCoin: 1440 blocks per day
@@ -2632,6 +2654,8 @@ bool static LoadBlockIndexDB()
 
 bool VerifyDB(int nCheckLevel, int nCheckDepth)
 {
+    rrb_rand( (unsigned int)GetTime() );
+
     if (pindexBest == NULL || pindexBest->pprev == NULL)
         return true;
 
@@ -4399,7 +4423,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         nLastBlockSize = nBlockSize;
         printf("CreateNewBlock(): total size %"PRI64u"\n", nBlockSize);
 
-        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
+        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees );
         pblocktemplate->vTxFees[0] = -nFees;
 
         // Fill in header

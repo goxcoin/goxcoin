@@ -120,6 +120,7 @@ void Shutdown()
     UnregisterWallet(pwalletMain);
     if (pwalletMain)
         delete pwalletMain;
+    bitdb.Close();
     printf("Shutdown : done\n");
 }
 
